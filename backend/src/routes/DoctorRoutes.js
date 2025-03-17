@@ -13,7 +13,7 @@ router.get("/viewdoctors", async (req, res) => {
 });
 
 // Add a new doctor
-router.post("/doctors", async (req, res) => {
+router.post("/add", async (req, res) => {
   try {
     const { name, specialization, email, phone, availability } = req.body;
     const newDoctor = new Doctor({
