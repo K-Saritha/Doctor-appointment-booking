@@ -1,94 +1,87 @@
-import React from 'react';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const DoctorLogin = () => {
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setError(""); 
+
+    try {
+      const response = await axios.post("http://localhost:5000/api/doctors/login", {
+        email,
+        password,
+      });
+
+      console.log("Backend Response:", response.data);
+      console.log("Stored doctorId:", response.data.doctor._id);
+      
+      navigate("/doctor-dashboard", { state: { doctorId: response.data.doctor._id } }); // Redirect after successful login
+    } catch (error) {
+      setError(error.response?.data.message || "Login failed. Try again.");
+    }
+  };
+
+  const handleSignupClick = () => {
+    navigate("/doctor-signup");
+  };
+
   return (
-    <div 
-      className="min-h-screen w-full flex items-center justify-center p-4"
-      style={{
-        backgroundImage: "url('/api/placeholder/1920/1080')",
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
-      }}
-    >
-      <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-8 relative">
-        {/* Logo */}
-        <div className="absolute -top-12 left-4">
-          <div className="flex items-center gap-2">
-            <img 
-              src="/api/placeholder/40/40" 
-              alt="Medico Logo" 
-              className="w-10 h-10"
+    <div className="min-h-screen w-full flex items-center justify-center p-4">
+      <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-8">
+        <h2 className="text-2xl font-bold text-center text-gray-800 mb-8">Doctor Login</h2>
+
+        {error && <p className="text-red-500 text-center">{error}</p>}
+
+        <form className="space-y-6" onSubmit={handleLogin}>
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+              Email
+            </label>
+            <input
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-md"
+              placeholder="Enter your email"
+              required
             />
-            <span className="text-2xl font-bold text-blue-600">Medico</span>
           </div>
-        </div>
 
-        {/* Login Form */}
-        <div className="mt-4">
-          <h2 className="text-2xl font-bold text-center text-gray-800 mb-8">Doctor Login</h2>
-          
-          <form className="space-y-6">
-            <div>
-              <label 
-                htmlFor="username" 
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Username
-              </label>
-              <input
-                type="text"
-                id="username"
-                name="username"
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-                placeholder="Enter your username"
-              />
-            </div>
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+              Password
+            </label>
+            <input
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-md"
+              placeholder="Enter your password"
+              required
+            />
+          </div>
 
-            <div>
-              <label 
-                htmlFor="password" 
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Password
-              </label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-                placeholder="Enter your password"
-              />
-            </div>
+          <button type="submit" className="w-full py-2 px-4 bg-blue-600 text-white rounded-md">
+            Sign in
+          </button>
+        </form>
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <input
-                  id="remember-me"
-                  name="remember-me"
-                  type="checkbox"
-                  className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
-                  Remember me
-                </label>
-              </div>
-
-              <a 
-                href="#" 
-                className="text-sm text-blue-600 hover:text-blue-500"
-              >
-                Forgot password?
-              </a>
-            </div>
-
-            <button
-              type="submit"
-              className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors"
-            >
-              Sign in
-            </button>
-          </form>
+        <div className="mt-4 text-center">
+          <p className="text-gray-600">Don't have an account?</p>
+          <button
+            onClick={handleSignupClick}
+            className="mt-2 w-full py-2 px-4 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-md"
+          >
+            Sign up
+          </button>
         </div>
       </div>
     </div>

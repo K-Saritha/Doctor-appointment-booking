@@ -1,5 +1,7 @@
 const express = require("express");
 const router = express.Router();
+
+const bcrypt = require('bcryptjs');
 const Doctor = require("../models/Doctors"); // Import the Doctor model
 
 // Get all doctors
@@ -30,4 +32,53 @@ router.post("/add", async (req, res) => {
   }
 });
 
+
+
+router.post("/login", async (req, res) => {
+    const { email, password } = req.body;
+    console.log("Doctor login attempt with email:", email);
+
+    try {
+        const doctor = await Doctor.findOne({ email });
+        console.log("Found doctor:", doctor);
+
+        if (!doctor) {
+            return res.status(400).json({ message: "User not found" });
+        }
+
+        console.log("Checking password...");
+        console.log("Entered Password:", password);
+        console.log("Stored Hashed Password:", doctor.password);
+
+        // Extract salt from stored hash (first 29 characters of bcrypt hash)
+        const extractedSalt = doctor.password.substring(0, 29);
+        console.log("Extracted Salt:", extractedSalt);
+
+        // Rehash the entered password using the extracted salt
+        const rehashedPassword = await bcrypt.hash(password, extractedSalt);
+        console.log("Rehashed Password:", rehashedPassword);
+
+        // Compare the new hash with the stored hash
+        const isMatch = await bcrypt.compare(password, doctor.password);
+        console.log("Password match result:", isMatch ? "✅ Correct Password" : "❌ Wrong Password");
+
+        if (!isMatch) {
+            return res.status(400).json({ message: "Invalid credentials" });
+        }
+
+        res.json({
+            message: "Login successful",
+            doctor: {
+                _id: doctor._id,
+                name: doctor.name,
+                email: doctor.email,
+                specialization: doctor.specialization,
+            },
+        });
+
+    } catch (error) {
+        console.error("Server error:", error);
+        res.status(500).json({ message: "Server error", error });
+    }
+});
 module.exports = router;

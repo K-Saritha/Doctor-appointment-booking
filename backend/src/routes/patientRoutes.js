@@ -6,6 +6,8 @@ const bcrypt = require('bcryptjs');
 const mongoose = require("mongoose");
 const Patient = require('../models/Patient');
 
+
+
 const router = express.Router();
 require("dotenv").config();
 
@@ -113,27 +115,6 @@ router.post("/login", async (req, res) => {
     }
 });
 
-// // ✅ Get Patient Details by ID
-// router.get("/:id", async (req, res) => {
-//     try {
-//         console.log(`Trying to open dashboard for ${req.params.id}`);
-//         console.log("Received ID:", req.params.id);
-
-//         console.log("Type of req.params.id:", typeof req.params.id);
-
-       
-//         const patient = await Patient.findOne({ _id: req.params.id });
-
-//         console.log("Patient Data from DB:", patient);
-//         if (!patient) {
-//             return res.status(404).json({ message: "Patient not found" });
-//         }
-//         res.json(patient);
-//     } catch (error) {
-//         console.error("Error:", error);
-//         res.status(500).json({ message: "Server error" });
-//     }
-// });
 
 
 
