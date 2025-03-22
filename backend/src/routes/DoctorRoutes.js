@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-
+const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const Doctor = require("../models/Doctors"); // Import the Doctor model
 
@@ -17,20 +17,36 @@ router.get("/viewdoctors", async (req, res) => {
 // Add a new doctor
 router.post("/add", async (req, res) => {
   try {
-    const { name, specialization, email, phone, availability } = req.body;
+    console.log("Request Body:", req.body);
+    const { name, specialization, email, phone, password, availability } = req.body;
+
     const newDoctor = new Doctor({
+      _id: new mongoose.Types.ObjectId().toString(), // Ensure _id is a string
       name,
       specialization,
       email,
       phone,
-      availability,
+      // Use provided password or fallback to "defaultPassword"
+      password: await bcrypt.hash(password || "defaultPassword", 10),
+      availability: {
+        // Convert days and slots into arrays
+        days: availability.days ? availability.days.split(",").map(day => day.trim()) : [],
+        slots: availability.slots ? availability.slots.split(",").map(slot => slot.trim()) : []
+      },
     });
+
     await newDoctor.save();
     res.status(201).json(newDoctor);
   } catch (error) {
-    res.status(500).json({ message: "Error adding doctor", error: error.message });
+    console.error("Error adding doctor:", error);
+    if (error.code === 11000) {
+      res.status(400).json({ message: "A doctor with that email already exists", error: error.message });
+    } else {
+      res.status(500).json({ message: "Error adding doctor", error: error.message });
+    }
   }
 });
+
 
 
 
